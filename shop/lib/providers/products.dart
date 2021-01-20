@@ -52,8 +52,15 @@ class Products with ChangeNotifier {
     return _items.firstWhere((el) => el.id == id);
   }
 
-  void addProduct(Product value) {
-    _items.add(value);
+  void addProduct(Product product) {
+    final newProduct = Product(
+      title: product.title,
+      description: product.description,
+      imageUrl: product.imageUrl,
+      price: product.price,
+      id: DateTime.now().toString(),
+    );
+    _items.add(newProduct);
     //we call this method to tell other widget that listen to this provider
     //to rebuild the widget tree
     notifyListeners();

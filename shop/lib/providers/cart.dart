@@ -38,20 +38,39 @@ class Cart with ChangeNotifier {
       _items.update(
         productId,
         (el) => CartItem(
-            id: el.id,
-            title: el.title,
-            quantity: el.quantity + 1,
-            price: el.price),
+          id: el.id,
+          title: el.title,
+          quantity: el.quantity + 1,
+          price: el.price,
+        ),
       );
     } else {
       _items.putIfAbsent(
         productId,
         () => CartItem(
-            id: DateTime.now().toString(),
-            title: title,
-            quantity: 1,
-            price: price),
+          id: DateTime.now().toString(),
+          title: title,
+          quantity: 1,
+          price: price,
+        ),
       );
+    }
+    notifyListeners();
+  }
+
+  void removeSingleItem(String productId) {
+    if (!_items.containsKey(productId)) return;
+    if (_items[productId].quantity > 1) {
+      _items.update(
+        productId,
+        (el) => CartItem(
+            id: el.id,
+            title: el.title,
+            quantity: el.quantity - 1,
+            price: el.price),
+      );
+    } else {
+      _items.remove(productId);
     }
     notifyListeners();
   }
