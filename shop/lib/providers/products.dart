@@ -65,4 +65,22 @@ class Products with ChangeNotifier {
     //to rebuild the widget tree
     notifyListeners();
   }
+
+  void updateProduct(String id, Product product) {
+    final index = _items.indexWhere((el) => el.id == id);
+    if (index < 0) return;
+    _items[index] = Product(
+      id: product.id,
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      isFav: product.isFav,
+    );
+  }
+
+  void deleteProduct(String id) {
+    _items.removeWhere((el) => el.id == id);
+    notifyListeners();
+  }
 }
