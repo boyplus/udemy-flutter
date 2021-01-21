@@ -41,7 +41,52 @@ void main(){
 
 #### Basic Widgets
 
+- **SafeArea()** -> Widget that use to properly pad the child the children so it appears below the display on the top of screen (it look not so good in iPhone).
+- **MaterialApp()** -> Widget that use to contain the material design widget that the children can inherit the data such as theme from MaterialApp().
+- **StatelessWidget** -> Widget that have no state that means the widget on itself will not be rebuild but if the attribute of widget was changed (because the parent of them send the new data that manes the object will be re created)
+- **@override** -> It is the notation to describe that we override (re-write) the existing method from the parent class (It is not required to add @override).
+- **Widget build(BuildContext context)** -> Method that will automatically call by the flutter that return the widget that we want to display on the screen.
+- **context** -> It is the BuildContext that we can receive from the build method. This variable can be use in many situation. In addtion, the context hold the current data of the widget.
 
+This code is to create the custom AppBar by using widget safeArea() as a container.
+
+```dart
+import 'package:flutter/material.dart';
+
+class MyAppBar extends StatelessWidget{
+  final Widget title;
+  MyAppBar({this.title});
+  @override
+  Widget build(BuildContext context){
+    
+  }
+  
+}
+
+class MyScaffold extends StatelessWidget{
+  @override
+  Widget build(BuildContext context){
+    //Material is a conceptual piece of paper on which the UI appears.
+    return Material(
+    	child: Column(
+      	children: <Widget>[
+          MyAppBar(title: Text('Example Title'),
+                   style: Theme.of(context).primaryTextTheme.headline6),
+          Expanded(child: Center(child: Text('Hello world'))),
+        ]
+      )
+    );
+  }
+}
+void main(){
+  runApp(MaterialApp(
+  	title: 'My App',
+    home: SafeArea(
+   		child: MyScaffold(),
+    ),
+  ));
+}
+```
 
 
 
