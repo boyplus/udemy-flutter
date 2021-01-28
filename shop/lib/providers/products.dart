@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../models/http_exception.dart';
 
 import './product.dart';
 
@@ -61,6 +61,7 @@ class Products with ChangeNotifier {
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      if (extractedData == null) return;
       final List<Product> loadedProducts = [];
       extractedData.forEach((productId, product) {
         loadedProducts.add(Product(
@@ -108,7 +109,6 @@ class Products with ChangeNotifier {
       //to rebuild the widget tree
       notifyListeners();
     } catch (error) {
-      print(error);
       throw error;
     }
   }
@@ -118,22 +118,37 @@ class Products with ChangeNotifier {
       final index = _items.indexWhere((el) => el.id == id);
       if (index < 0) return;
       final url = 'https://vue-http-e0103.firebaseio.com/products/$id.json';
-      http.patch(url,body:json.encode({
-
-      }));
-      _items[index] = Product(
-        id: product.id,
-        title: product.title,
-        description: product.description,
-        price: product.price,
-        imageUrl: product.imageUrl,
-        isFav: product.isFav,
+      await http.patch(
+        url,
+        body: json.encode(
+          {
+            'title': product.title,
+            'description': product.description,
+            'price': product.price,
+            'imageUrl': product.imageUrl,
+          },
+        ),
       );
-    } catch (error) {}
+      _items[index] = product;
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
   }
 
-  void deleteProduct(String id) {
-    _items.removeWhere((el) => el.id == id);
+  void deleteProduct(String id) async {
+    final url = 'https://vue-http-e0103.firebaseio.com/products/$id.json';
+    final existingProductIndex = _items.indexWhere((el) => el.id == id);
+    var existingProduct = _items[existingProductIndex];
+    _items.removeAt(existingProductIndex);
     notifyListeners();
+    final response = await http.delete(url);
+    if (response.statusCode >= 400) {
+      //Optimitic delete (Roll back the delete operation)
+      _items.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+      throw HttpException('Could not delete product');
+    }
+    existingProduct = null;
   }
 }
