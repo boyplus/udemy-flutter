@@ -43,8 +43,9 @@ class Products with ChangeNotifier {
   ];
 
   final String authToken;
+  final String userId;
 
-  Products(this.authToken, this._items);
+  Products(this.authToken, this.userId, this._items);
 
   List<Product> get items {
     //we have to create new array because if the pointer is the old pointer
@@ -60,13 +61,21 @@ class Products with ChangeNotifier {
     return _items.firstWhere((el) => el.id == id);
   }
 
-  Future<void> fetchProducts() async {
-    final url =
-        'https://vue-http-e0103.firebaseio.com/products.json?auth=$authToken';
+  Future<void> fetchProducts([bool filterByUser = false]) async {
+    print('filter is $filterByUser');
+    final filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+    String url =
+        'https://vue-http-e0103.firebaseio.com/products.json?auth=$authToken&$filterString';
+
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       if (extractedData == null) return;
+      url =
+          'https://vue-http-e0103.firebaseio.com/userFav/$userId.json?auth=$authToken';
+      final favRes = await http.get(url);
+      final favData = json.decode(favRes.body);
       final List<Product> loadedProducts = [];
       extractedData.forEach((productId, product) {
         loadedProducts.add(Product(
@@ -75,7 +84,7 @@ class Products with ChangeNotifier {
           description: product['description'],
           price: product['price'],
           imageUrl: product['imageUrl'],
-          isFav: product['isFav'],
+          isFav: favData == null ? false : favData['$productId'] ?? false,
         ));
       });
       _items = loadedProducts;
@@ -97,11 +106,10 @@ class Products with ChangeNotifier {
             'description': product.description,
             'imageUrl': product.imageUrl,
             'price': product.price,
-            'isFav': product.isFav,
+            'creatorId': userId,
           },
         ),
       );
-      print(json.decode(response.body));
       final newProduct = Product(
         title: product.title,
         description: product.description,

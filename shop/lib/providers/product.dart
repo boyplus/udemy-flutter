@@ -22,20 +22,16 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFav(String token) async {
+  void toggleFav(String token, String userId) async {
     final oldStatus = isFav;
     isFav = !isFav;
     notifyListeners();
     try {
       final url =
-          'https://vue-http-e0103.firebaseio.com/products/$id.json?auth=$token';
-      final response = await http.patch(
+          'https://vue-http-e0103.firebaseio.com/userFav/$userId/$id.json?auth=$token';
+      final response = await http.put(
         url,
-        body: json.encode(
-          {
-            'isFav': isFav,
-          },
-        ),
+        body: json.encode(isFav),
       );
       //firebase did not throw an error but we have to check status code
       if (response.statusCode >= 400) {
