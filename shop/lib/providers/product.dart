@@ -22,12 +22,13 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFav() async {
+  void toggleFav(String token) async {
     final oldStatus = isFav;
     isFav = !isFav;
     notifyListeners();
     try {
-      final url = 'https://vue-http-e0103.firebaseio.com/products/$id.json';
+      final url =
+          'https://vue-http-e0103.firebaseio.com/products/$id.json?auth=$token';
       final response = await http.patch(
         url,
         body: json.encode(

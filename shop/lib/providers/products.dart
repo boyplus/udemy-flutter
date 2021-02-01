@@ -42,6 +42,10 @@ class Products with ChangeNotifier {
     // ),
   ];
 
+  final String authToken;
+
+  Products(this.authToken, this._items);
+
   List<Product> get items {
     //we have to create new array because if the pointer is the old pointer
     //so the builder will not rebuild the widget because the data did not change
@@ -57,7 +61,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchProducts() async {
-    const url = 'https://vue-http-e0103.firebaseio.com/products.json';
+    final url =
+        'https://vue-http-e0103.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -81,7 +86,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    const url = 'https://vue-http-e0103.firebaseio.com/products.json';
+    final url =
+        'https://vue-http-e0103.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.post(
         url,
@@ -117,7 +123,8 @@ class Products with ChangeNotifier {
     try {
       final index = _items.indexWhere((el) => el.id == id);
       if (index < 0) return;
-      final url = 'https://vue-http-e0103.firebaseio.com/products/$id.json';
+      final url =
+          'https://vue-http-e0103.firebaseio.com/products/$id.json?auth=$authToken';
       await http.patch(
         url,
         body: json.encode(
@@ -137,7 +144,8 @@ class Products with ChangeNotifier {
   }
 
   void deleteProduct(String id) async {
-    final url = 'https://vue-http-e0103.firebaseio.com/products/$id.json';
+    final url =
+        'https://vue-http-e0103.firebaseio.com/products/$id.json?auth=$authToken';
     final existingProductIndex = _items.indexWhere((el) => el.id == id);
     var existingProduct = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);
